@@ -1,0 +1,30 @@
+{
+  "name": "convoy-ride-contracts",
+  "version": "1.0.0",
+  "description": "**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/convoy-ride/contracts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/convoy-ride/contracts/issues"
+  },
+  "homepage": "https://github.com/convoy-ride/contracts#readme",
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "prettier-plugin-solidity": "^2.2.0",
+    "solhint": "^6.0.1"
+  }
+}
