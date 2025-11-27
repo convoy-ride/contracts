@@ -9,7 +9,7 @@ interface ICVYCrowdFund {
         address fundingToken,
         address recipient,
         uint256 targetAmount,
-        address[] callTargets,
-        bytes[] callData
+        address[] memory callTargets,
+        bytes[] memory callData
     ) external;
 }

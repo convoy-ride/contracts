@@ -1,5 +1,15 @@
 pragma solidity ^0.8.0;
 
+import '../shared/Constants.sol' as Constants;
+
+struct OperationsConfig {
+    uint24 feePerKilometerUSD;
+    uint256 requestPersistenceDuration;
+    uint256 driverStakeAmountUSD;
+    uint24 cancellationPercentage;
+    mapping(Constants.RideType => uint256) minFarePerRideTypeUSD;
+}
+
 interface ICVYDao {
     //=== View Functions ===//
     function governanceToken() external view returns (address);
@@ -27,12 +37,17 @@ interface ICVYDao {
             uint256 abstainment,
             uint256 quorum
         );
-
-    // === Operational Parameters === //
-    function feePerDistanceUSD() external view returns (uint256);
-    function requestPersistenceDuration() external view returns (uint256);
-    function isBanned(address user) external view returns (bool);
-    function stakeTokenAmountUSD() external view returns (uint256);
+    function getOperationsConfig()
+        external
+        view
+        returns (
+            uint24 feePerKilometerUSD,
+            uint256 requestPersistenceDuration,
+            uint256 driverStakeAmountUSD,
+            uint24 cancellationPercentage,
+            Constants.RideType[] memory rideTypes,
+            uint256[] memory minFaresPerRideTypeUSD
+        );
 
     //=== State Changing Functions ===//
     function stake(uint256 amount) external;
@@ -49,9 +64,15 @@ interface ICVYDao {
         uint256 targetAmount,
         address[] memory callTargets,
         bytes[] memory callData
+    ) external returns (address);
+    function setOperationsConfig(
+        uint24 feePerKilometerUSD,
+        uint256 requestPersistenceDuration,
+        uint256 driverStakeAmountUSD,
+        uint24 cancellationPercentage,
+        Constants.RideType[] calldata rideTypes,
+        uint256[] calldata minFaresUSD
     ) external;
-    function setFeePerDistanceUSD(uint256 newFee) external;
-    function setRequestPersistenceDuration(uint256 newDuration) external;
     function banUser(address user) external;
     function unbanUser(address user) external;
     function withdrawERC20(address token, address to, uint256 amount) external;
