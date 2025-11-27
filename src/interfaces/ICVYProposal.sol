@@ -7,10 +7,7 @@ enum ProposalState {
     Active,
     Canceled,
     Defeated,
-    Succeeded,
-    Queued,
-    Expired,
-    Executed
+    Succeeded
 }
 
 enum VoteType {
@@ -52,6 +49,7 @@ interface ICVYProposal {
         string memory title,
         string memory description,
         uint256 duration,
+        uint256 quorum,
         bytes[] memory calldatas
     ) external;
 
