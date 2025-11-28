@@ -22,8 +22,6 @@ interface ICVYProposal {
 
     function currentState() external view returns (ProposalState);
 
-    function governanceToken() external view returns (IERC20);
-
     function start() external view returns (uint256);
 
     function end() external view returns (uint256);
@@ -50,7 +48,7 @@ interface ICVYProposal {
         string memory description,
         uint256 duration,
         uint256 quorum,
-        bytes[] memory calldatas
+        bytes[] memory callData
     ) external;
 
     function castVote(VoteType voteType) external;

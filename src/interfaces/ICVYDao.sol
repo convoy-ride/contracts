@@ -10,16 +10,46 @@ struct OperationsConfig {
     mapping(Constants.RideType => uint256) minFarePerRideTypeUSD;
 }
 
+struct StakeInfo {
+    uint256 stakedAmount;
+    uint256 stakedOn;
+    uint256 unlockTime;
+}
+
 interface ICVYDao {
+    // === Error Definitions === //
+    error UserBanned(address user);
+    error NoStake();
+    error StakeDurationTooLong(uint256 maxDuration);
+    error NotYetUnlocked(uint256 unlockTime);
+    error SBT(uint256 tokenId);
+    error NotTokenOwner(address owner, uint256 tokenId);
+    error OnlyProposal();
+
+    // === Events === //
+    event ProposalCreated(
+        address proposal,
+        string title,
+        string description,
+        uint256 duration
+    );
+    event CrowdFundCreated(address crowdFund, string description);
+
     //=== View Functions ===//
+    function MAX_STAKE_DURATION() external view returns (uint256);
     function governanceToken() external view returns (address);
-    function stakeBalanceOfSBT(uint256 tokenId) external view returns (uint256);
+    function stakeInfoOfSBT(
+        uint256 tokenId
+    ) external view returns (StakeInfo memory);
     function tokenId() external view returns (uint256);
     function proposalImplementation() external view returns (address);
     function crowdFundImplementation() external view returns (address);
     function proposalCount() external view returns (uint256);
     function proposals(uint256 index) external view returns (address);
+    function crowdFundCount() external view returns (uint256);
+    function crowdFunds(uint256 index) external view returns (address);
     function isProposal(address proposal) external view returns (bool);
+    function sbtWeight(uint256 tokenId) external view returns (uint256);
     function proposalMetadata(
         address proposal
     )
@@ -50,9 +80,10 @@ interface ICVYDao {
         );
 
     //=== State Changing Functions ===//
-    function stake(uint256 amount) external;
-    function unstake(uint256 amount) external;
+    function stake(uint256 amount, uint256 duration) external;
+    function unstake(uint256 tokenId) external;
     function createProposal(
+        uint256 tokenId,
         string calldata title,
         string calldata description,
         uint256 duration,
@@ -62,6 +93,7 @@ interface ICVYDao {
         address fundingToken,
         address recipient,
         uint256 targetAmount,
+        string memory description,
         address[] memory callTargets,
         bytes[] memory callData
     ) external returns (address);
