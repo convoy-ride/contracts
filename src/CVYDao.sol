@@ -13,7 +13,6 @@ contract CVYDao is ICVYDao, ERC721 {
 
     uint256 public constant MAX_STAKE_DURATION = 730 days; // 2 years
     uint256 private constant WEIGHT_MULTIPLIER = 50; // 0.5
-
     address public governanceToken;
     address public proposalImplementation;
     address public crowdFundImplementation;
@@ -21,14 +20,11 @@ contract CVYDao is ICVYDao, ERC721 {
     uint256 public crowdFundCount;
     mapping(address => bool) public isBanned;
     uint256 public stakeTokenAmountUSD;
-
     address[] public proposals;
     address[] public crowdFunds;
     mapping(address => bool) public isProposal;
-
     uint256 public tokenId;
     mapping(uint256 => StakeInfo) public stakeInfoOfSBT;
-
     OperationsConfig private operationsConfig;
 
     constructor(

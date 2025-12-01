@@ -1,8 +1,22 @@
 pragma solidity ^0.8.0;
 
 interface ICVYCrowdFund {
+    // === Errors === //
+    error AlreadyInitialized();
+    error NoDeposit();
+    error OnlyRecipient();
+    error TargetNotReached();
+    error AlreadyCompleted();
+
     // === View Functions === //
     function factory() external view returns (address);
+    function ETHER() external view returns (address);
+    function targetAmount() external view returns (uint256);
+    function description() external view returns (string);
+    function callTargets(uint256 index) external view returns (address);
+    function callData(uint256 index) external view returns (bytes memory);
+    function fundingToken() external view returns (address);
+    function recipient() external view returns (address);
 
     // === State Changing Functions === //
     function initialize(
@@ -13,4 +27,7 @@ interface ICVYCrowdFund {
         address[] memory callTargets,
         bytes[] memory callData
     ) external;
+    function fund(uint256 amount) external payable;
+    function withdraw() external;
+    function complete() external;
 }
