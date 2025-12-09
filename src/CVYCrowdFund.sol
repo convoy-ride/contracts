@@ -3,9 +3,13 @@ pragma solidity ^0.8.0;
 import {ICVYCrowdFund} from './interfaces/ICVYCrowdFund.sol';
 import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import {ERC2771Context} from '@openzeppelin/contracts/metatx/ERC2771Context.sol';
+import {IERC20Permit} from '@openzeppelin/contracts/tokens/ERC20/extensions/IERC20Permit.sol';
+import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 
-contract CVYCrowdFund is ICVYCrowdFund {
+contract CVYCrowdFund is ICVYCrowdFund, ERC2771Context {
     using SafeERC20 for IERC20;
+    using Address for address;
 
     address public factory;
     address public ETHER;
@@ -22,7 +26,7 @@ contract CVYCrowdFund is ICVYCrowdFund {
     mapping(address => uint256) private _deposits;
     bool private _isCompleted;
 
-    constructor() {}
+    constructor(address trustedForwarder_) ERC2771Context(trustedForwarder_) {}
 
     function initialize(
         address _fundingToken,
@@ -44,13 +48,29 @@ contract CVYCrowdFund is ICVYCrowdFund {
         _isCompleted = false;
     }
 
-    function fund(uint256 amount) external payable {
+    function fund(
+        uint256 amount,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external payable {
         if (_isCompleted) revert AlreadyCompleted();
-        address sender = msg.sender;
+        address sender = _msgSender();
         if (ETHER == fundingToken) {
             require(msg.value >= amount, 'Invalid_Msg.Value');
             _deposits[sender] += msg.value;
         } else {
+            fundingToken.functionCall(
+                _composePermitCallData(
+                    sender,
+                    address(this),
+                    amount,
+                    block.timestamp + 20 minutes,
+                    v,
+                    r,
+                    s
+                )
+            );
             IERC20(fundingToken).safeTransferFrom(
                 sender,
                 address(this),
@@ -62,7 +82,7 @@ contract CVYCrowdFund is ICVYCrowdFund {
 
     function withdraw() external {
         if (_isCompleted) revert AlreadyCompleted();
-        address sender = msg.sender;
+        address sender = _msgSender();
         uint256 deposited = _deposits[sender];
         if (deposited == 0) {
             revert NoDeposit();
@@ -78,7 +98,7 @@ contract CVYCrowdFund is ICVYCrowdFund {
     }
 
     function complete() external {
-        address sender = msg.sender;
+        address sender = _msgSender();
         if (sender != recipient) revert OnlyRecipient();
         if (ETHER == fundingToken) {
             uint256 amount = address(this).balance;
@@ -97,5 +117,27 @@ contract CVYCrowdFund is ICVYCrowdFund {
             address _target = callTargets[i];
             _target.call{value: 0}(callData[i]);
         }
+    }
+
+    function _composePermitCallData(
+        address owner,
+        address spender,
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) private returns (bytes memory) {
+        return
+            abi.encodeWithSelector(
+                IERC20Permit.permit,
+                owner,
+                spender,
+                amount,
+                deadline,
+                v,
+                r,
+                s
+            );
     }
 }

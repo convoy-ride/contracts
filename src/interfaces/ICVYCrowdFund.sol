@@ -27,7 +27,12 @@ interface ICVYCrowdFund {
         address[] memory callTargets,
         bytes[] memory callData
     ) external;
-    function fund(uint256 amount) external payable;
+    function fund(
+        uint256 amount,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external payable;
     function withdraw() external;
     function complete() external;
 }

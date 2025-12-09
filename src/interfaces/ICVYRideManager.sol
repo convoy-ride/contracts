@@ -37,6 +37,7 @@ interface ICVYRideManager {
     event RideCompleted(bytes32 indexed rideId);
 
     // === View Functions === //
+    function escrowImplementation() external view returns (address);
     function rides(bytes32 rideId) external view returns (RideEvent memory);
     function offChainIDToRideID(
         string calldata offChainID
