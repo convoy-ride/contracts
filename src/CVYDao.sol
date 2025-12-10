@@ -40,22 +40,12 @@ contract CVYDao is ICVYDao, ERC721 {
         operationsConfig.requestPersistenceDuration = 15 minutes;
         operationsConfig.driverStakeAmountUSD = 500; // $5.00
         operationsConfig.cancellationPercentage = 99; // 0.99%
-        operationsConfig.minFarePerRideTypeUSD[
-            Constants.RideType.STANDARD
-        ] = 200; // $2.00
-        operationsConfig.minFarePerRideTypeUSD[
-            Constants.RideType.COMFORT
-        ] = 500; // $5.00
-        operationsConfig.minFarePerRideTypeUSD[
-            Constants.RideType.PREMIUM
-        ] = 1000; // $10.00
+        operationsConfig.minFarePerRideTypeUSD[Constants.RideType.STANDARD] = 200; // $2.00
+        operationsConfig.minFarePerRideTypeUSD[Constants.RideType.COMFORT] = 500; // $5.00
+        operationsConfig.minFarePerRideTypeUSD[Constants.RideType.PREMIUM] = 1000; // $10.00
         operationsConfig.minFarePerRideTypeUSD[Constants.RideType.XL] = 800; // $8.00
-        operationsConfig.minFarePerRideTypeUSD[
-            Constants.RideType.ELECTRIC
-        ] = 2000; // $20.00
-        operationsConfig.minFarePerRideTypeUSD[
-            Constants.RideType.PARCEL_DELIVERY
-        ] = 5000; // $50.00
+        operationsConfig.minFarePerRideTypeUSD[Constants.RideType.ELECTRIC] = 2000; // $20.00
+        operationsConfig.minFarePerRideTypeUSD[Constants.RideType.PARCEL_DELIVERY] = 5000; // $50.00
     }
 
     function stake(uint256 amount, uint256 duration) external {
@@ -102,25 +92,11 @@ contract CVYDao is ICVYDao, ERC721 {
             revert NotTokenOwner(sender, _tokenId);
         }
         bytes32 salt = keccak256(
-            abi.encodePacked(
-                _tokenId,
-                title,
-                description,
-                duration,
-                callData,
-                block.timestamp
-            )
+            abi.encodePacked(_tokenId, title, description, duration, callData, block.timestamp)
         );
         proposal = Clones.cloneDeterministic(proposalImplementation, salt);
         uint256 quorum = _calculateProposalQuorum(_tokenId);
-        ICVYProposal(proposal).initialize(
-            sender,
-            title,
-            description,
-            duration,
-            quorum,
-            callData
-        );
+        ICVYProposal(proposal).initialize(sender, title, description, duration, quorum, callData);
 
         proposals.push(proposal);
         isProposal[proposal] = true;
@@ -179,15 +155,12 @@ contract CVYDao is ICVYDao, ERC721 {
         }
         require(rideTypes.length == minFaresUSD.length, 'Length_Mismatch');
         operationsConfig.feePerKilometerUSD = feePerKilometerUSD;
-        operationsConfig
-            .requestPersistenceDuration = requestPersistenceDuration;
+        operationsConfig.requestPersistenceDuration = requestPersistenceDuration;
         operationsConfig.driverStakeAmountUSD = driverStakeAmountUSD;
         operationsConfig.cancellationPercentage = cancellationPercentage;
 
         for (uint8 i; i < rideTypes.length; i++) {
-            operationsConfig.minFarePerRideTypeUSD[rideTypes[i]] = minFaresUSD[
-                i
-            ];
+            operationsConfig.minFarePerRideTypeUSD[rideTypes[i]] = minFaresUSD[i];
         }
     }
 
@@ -225,8 +198,7 @@ contract CVYDao is ICVYDao, ERC721 {
         )
     {
         feePerKilometerUSD = operationsConfig.feePerKilometerUSD;
-        requestPersistenceDuration = operationsConfig
-            .requestPersistenceDuration;
+        requestPersistenceDuration = operationsConfig.requestPersistenceDuration;
         driverStakeAmountUSD = operationsConfig.driverStakeAmountUSD;
         cancellationPercentage = operationsConfig.cancellationPercentage;
         rideTypes = new Constants.RideType[](6);
@@ -235,9 +207,7 @@ contract CVYDao is ICVYDao, ERC721 {
         for (uint8 i = 0; i < 6; i++) {
             Constants.RideType rideType = Constants.RideType(i);
             rideTypes[i] = rideType;
-            minFaresPerRideTypeUSD[i] = operationsConfig.minFarePerRideTypeUSD[
-                rideType
-            ];
+            minFaresPerRideTypeUSD[i] = operationsConfig.minFarePerRideTypeUSD[rideType];
         }
     }
 
@@ -272,16 +242,13 @@ contract CVYDao is ICVYDao, ERC721 {
         quorum = prop.quorum();
     }
 
-    function _calculateProposalQuorum(
-        uint256 _tokenId
-    ) internal view returns (uint256) {
+    function _calculateProposalQuorum(uint256 _tokenId) internal view returns (uint256) {
         uint256 totalSBTWeight = 0;
         for (uint256 i = 1; i <= tokenId; i++) {
             totalSBTWeight += sbtWeight(i);
         }
         uint256 baseQuorum = (1000 * totalSBTWeight) / 10000; // 10% of total weight
-        uint256 wXWeightMultiplier = (sbtWeight(_tokenId) * WEIGHT_MULTIPLIER) /
-            100;
+        uint256 wXWeightMultiplier = (sbtWeight(_tokenId) * WEIGHT_MULTIPLIER) / 100;
         return baseQuorum + wXWeightMultiplier;
     }
 

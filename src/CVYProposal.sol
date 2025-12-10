@@ -1,10 +1,6 @@
 pragma solidity ^0.8.0;
 
-import {
-    ICVYProposal,
-    ProposalState,
-    VoteType
-} from './interfaces/ICVYProposal.sol';
+import {ICVYProposal, ProposalState, VoteType} from './interfaces/ICVYProposal.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 
 contract CVYProposal is ICVYProposal, Ownable {

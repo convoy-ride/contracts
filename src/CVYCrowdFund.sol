@@ -1,15 +1,16 @@
 pragma solidity ^0.8.0;
 
 import {ICVYCrowdFund} from './interfaces/ICVYCrowdFund.sol';
+import {GlobalLib} from './shared/GlobalLib.sol';
 import {SafeERC20} from '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {ERC2771Context} from '@openzeppelin/contracts/metatx/ERC2771Context.sol';
-import {IERC20Permit} from '@openzeppelin/contracts/tokens/ERC20/extensions/IERC20Permit.sol';
 import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 
 contract CVYCrowdFund is ICVYCrowdFund, ERC2771Context {
     using SafeERC20 for IERC20;
     using Address for address;
+    using GlobalLib for address;
 
     address public factory;
     address public ETHER;
@@ -48,12 +49,7 @@ contract CVYCrowdFund is ICVYCrowdFund, ERC2771Context {
         _isCompleted = false;
     }
 
-    function fund(
-        uint256 amount,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external payable {
+    function fund(uint256 amount, uint8 v, bytes32 r, bytes32 s) external payable {
         if (_isCompleted) revert AlreadyCompleted();
         address sender = _msgSender();
         if (ETHER == fundingToken) {
@@ -61,8 +57,7 @@ contract CVYCrowdFund is ICVYCrowdFund, ERC2771Context {
             _deposits[sender] += msg.value;
         } else {
             fundingToken.functionCall(
-                _composePermitCallData(
-                    sender,
+                sender.composePermitCallData(
                     address(this),
                     amount,
                     block.timestamp + 20 minutes,
@@ -71,11 +66,7 @@ contract CVYCrowdFund is ICVYCrowdFund, ERC2771Context {
                     s
                 )
             );
-            IERC20(fundingToken).safeTransferFrom(
-                sender,
-                address(this),
-                amount
-            );
+            IERC20(fundingToken).safeTransferFrom(sender, address(this), amount);
             _deposits[sender] += amount;
         }
     }
@@ -119,25 +110,16 @@ contract CVYCrowdFund is ICVYCrowdFund, ERC2771Context {
         }
     }
 
-    function _composePermitCallData(
-        address owner,
-        address spender,
-        uint256 amount,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) private returns (bytes memory) {
-        return
-            abi.encodeWithSelector(
-                IERC20Permit.permit,
-                owner,
-                spender,
-                amount,
-                deadline,
-                v,
-                r,
-                s
-            );
-    }
+    // function _composePermitCallData(
+    //     address owner,
+    //     address spender,
+    //     uint256 amount,
+    //     uint256 deadline,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) private returns (bytes memory) {
+    //     return
+    //         abi.encodeWithSelector(IERC20Permit.permit, owner, spender, amount, deadline, v, r, s);
+    // }
 }

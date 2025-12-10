@@ -1,9 +1,19 @@
 pragma solidity ^0.8.0;
 
 enum RideStatus {
-    Created,
+    Pending,
+    Started,
     Completed,
     Cancelled
+}
+
+enum RideType {
+    STANDARD,
+    COMFORT,
+    PREMIUM,
+    XL,
+    ELECTRIC,
+    PARCEL_DELIVERY
 }
 
 struct GeoCoordinates {
@@ -24,9 +34,14 @@ struct RideEvent {
     uint256 startTimestamp;
     uint256 endTimestamp;
     RideStatus status;
+    address cancelledBy;
 }
 
 interface ICVYRideManager {
+    // === Errors === //
+    error Unauthorized();
+
+    // === Events === //
     event RideCreated(
         bytes32 indexed rideId,
         address indexed rider,
@@ -39,9 +54,8 @@ interface ICVYRideManager {
     // === View Functions === //
     function escrowImplementation() external view returns (address);
     function rides(bytes32 rideId) external view returns (RideEvent memory);
-    function offChainIDToRideID(
-        string calldata offChainID
-    ) external view returns (bytes32);
+    function allRides(uint256) external view returns (bytes32);
+    function offChainIDToRideID(string calldata offChainID) external view returns (bytes32);
     function escrow(bytes32 rideId) external view returns (address);
     function stakeToken() external view returns (address);
     function dao() external view returns (address);

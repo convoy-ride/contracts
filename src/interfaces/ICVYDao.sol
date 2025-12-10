@@ -27,20 +27,13 @@ interface ICVYDao {
     error OnlyProposal();
 
     // === Events === //
-    event ProposalCreated(
-        address proposal,
-        string title,
-        string description,
-        uint256 duration
-    );
+    event ProposalCreated(address proposal, string title, string description, uint256 duration);
     event CrowdFundCreated(address crowdFund, string description);
 
     //=== View Functions ===//
     function MAX_STAKE_DURATION() external view returns (uint256);
     function governanceToken() external view returns (address);
-    function stakeInfoOfSBT(
-        uint256 tokenId
-    ) external view returns (StakeInfo memory);
+    function stakeInfoOfSBT(uint256 tokenId) external view returns (StakeInfo memory);
     function tokenId() external view returns (uint256);
     function proposalImplementation() external view returns (address);
     function crowdFundImplementation() external view returns (address);
