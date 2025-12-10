@@ -78,7 +78,7 @@ contract CVYRideManager is ICVYRideManager, ERC2771Context {
             )
         );
 
-        ICVYEscrow(_escrow).initialize(sender, fareToken, fareAmount, _rideId);
+        ICVYEscrow(_escrow).initialize(sender, fareToken, fareAmount, _rideId, dao);
 
         allRides.push(_rideId);
         escrow[_rideId] = _escrow;

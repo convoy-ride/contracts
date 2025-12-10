@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import {IERC20Permit} from '@openzeppelin/contracts/tokens/ERC20/extensions/IERC20Permit.sol';
+import {IERC20Permit} from '@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol';
 
 library GlobalLib {
     function composePermitCallData(
